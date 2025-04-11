@@ -30,7 +30,7 @@ import useFetch from "@/hooks/use-fetch";
 import { onboardingSchema } from "@/app/lib/schema";
 import { updateUser } from "@/actions/user";
 
-const OnboardingForm = ({ industries }) => {
+const OnboardingForm = ({ industries, industry, userDetails }) => {
   const router = useRouter();
   const [selectedIndustry, setSelectedIndustry] = useState(null);
 
@@ -65,12 +65,37 @@ const OnboardingForm = ({ industries }) => {
     }
   };
 
+  const prefill = () => {
+    if (industry) {
+      setValue("industry", industry);
+      setSelectedIndustry(industries.find((ind) => ind.id === industry));
+    }
+
+    if (userDetails) {
+      const { name, email, job, skills, experience, bio } = userDetails;
+      setValue("name", name);
+      setValue("email", email);
+      setValue("job", job);
+      setValue("skills", skills);
+      setValue("experience", experience);
+      setValue("bio", bio);
+      if (userDetails.industry) {
+        const [industry, subIndustry] = userDetails.industry.split("-");
+        setValue("subIndustry", subIndustry);
+      }
+    }
+  };
+
   useEffect(() => {
     if (updateResult?.success && !updateLoading) {
       toast.success("Profile completed successfully!");
       router.push("/dashboard");
       router.refresh();
     }
+  }, [updateResult, updateLoading]);
+
+  useEffect(() => {
+    prefill();
   }, [updateResult, updateLoading]);
 
   const watchIndustry = watch("industry");

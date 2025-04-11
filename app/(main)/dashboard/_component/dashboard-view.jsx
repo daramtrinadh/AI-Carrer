@@ -31,22 +31,16 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { updateIndustryInsights } from "@/actions/user";
+import { useRouter } from "next/navigation";
 
 const DashboardView = ({ insights }) => {
   const [updatingInsights, setUpdatingInsights] = useState(false);
 
   const handleUpdateInsights = async () => {
     setUpdatingInsights(true);
-    try {
-      await updateIndustryInsights(insights.industry);
-      toast.success("Industry insights updated successfully!");
-    } catch (error) {
-      toast.error("Failed to update insights");
-    } finally {
-      setUpdatingInsights(false);
-    }
+    router.push(`/onboarding?industry=${insights.industry}`);
   };
+  const router = useRouter();
 
   const salaryData = insights.salaryRanges.map((range) => ({
     name: range.role,
