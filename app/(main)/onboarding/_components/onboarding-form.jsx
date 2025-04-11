@@ -60,8 +60,14 @@ const OnboardingForm = ({ industries, industry, userDetails }) => {
         ...values,
         industry: formattedIndustry,
       });
+
+      if (updateResult?.success) {
+        toast.success("Profile completed successfully!");
+        router.push("/dashboard");
+      }
     } catch (error) {
       console.error("Onboarding error:", error);
+      toast.error("Failed to update profile. Please try again.");
     }
   };
 
@@ -97,7 +103,6 @@ const OnboardingForm = ({ industries, industry, userDetails }) => {
   useEffect(() => {
     prefill();
   }, [updateResult, updateLoading]);
-
   const watchIndustry = watch("industry");
 
   return (

@@ -10,7 +10,7 @@ export async function updateUser(data) {
   if (!userId) throw new Error("Unauthorized");
 
   try {
-    return await db.$transaction(async (tx) => {
+    const result = await db.$transaction(async (tx) => {
       // 1. Generate new insights
       const insights = await generateAIInsights(data.industry);
       if (!insights) {
@@ -47,25 +47,27 @@ export async function updateUser(data) {
         },
       });
       if (!updatedUser) {
-        throw new Error("Failed to update user");
+        throw new Error("Failed to update user profile");
       }
       revalidatePath("/");
       return updatedUser;
     });
+    return { data: result };
   } catch (error) {
-    console.error("Error updating user:", error);
-    throw new Error("Failed to update profile");
+    console.error("Error updating user profile:", error);
+    return { error: "Failed to update profile" };
   }
 }
 
 export async function updateIndustryInsights(industry) {
   const { userId } = await auth();
-  if (!userId) throw new Error("Unauthorized");
+  if (!userId) return { error: "Unauthorized" };
 
   try {
     const insights = await generateAIInsights(industry);
-    
-    const updatedInsight = await db.industryInsight.update({
+    if (!insights) throw new Error("Failed to generate insights");
+
+    const result = await db.industryInsight.update({
       where: {
         industry: industry,
       },
@@ -76,10 +78,10 @@ export async function updateIndustryInsights(industry) {
     });
 
     revalidatePath("/");
-    return updatedInsight;
+    return { data: result };
   } catch (error) {
     console.error("Error updating industry insights:", error.message);
-    throw new Error("Failed to update insights");
+    return { error: "Failed to update insights" };
   }
 }
 
@@ -87,25 +89,21 @@ export async function getUserOnboardingStatus() {
   const { userId } = await auth();
   if (!userId) throw new Error("Unauthorized");
 
-  const user = await db.user.findUnique({
-    where: { clerkUserId: userId },
-  });
-
-  if (!user) throw new Error("User not found");
-
   try {
-    const user = await db.user.findUnique({
+    const result = await db.user.findUnique({
       where: {
         clerkUserId: userId,
       },
       select: {
         industry: true,
+        name: true,
+        email: true,
+        job: true,
       },
     });
-
-    return {
-      isOnboarded: !!user?.industry,
-    };
+    const isOnboarded = !!result?.industry;
+    const data = { isOnboarded, ...result };
+    return { data };
   } catch (error) {
     console.error("Error checking onboarding status:", error);
     throw new Error("Failed to check onboarding status");
