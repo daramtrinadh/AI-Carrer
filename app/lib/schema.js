@@ -16,8 +16,7 @@ export const onboardingSchema = z.object({
         .number()
         .min(0, "Experience must be at least 0 years")
         .max(50, "Experience cannot exceed 50 years")
-    ),
-  skills: z.array(z.string()).optional().transform(val => val?.filter(Boolean))
+    ),\n  skills: z.string().optional()\n    
 });
 
 
