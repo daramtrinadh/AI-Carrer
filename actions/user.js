@@ -67,23 +67,23 @@ export async function updateIndustryInsights(industry) {
     const insights = await generateAIInsights(industry);
     if (!insights) throw new Error("Failed to generate insights");
 
-    const result = await db.industryInsight.update({
-      where: {
-        industry: industry,
-      },
-      data: {
-        ...insights,
-        nextUpdate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
-      },
+    const result = await db.insight.update({
+      where: { userId: userId },
+      data: { ...insights, nextUpdate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) },
     });
 
     revalidatePath("/");
     return { data: result };
   } catch (error) {
     console.error("Error updating industry insights:", error.message);
-    return { error: "Failed to update insights" };
+    return { error: "Failed to update user insights" };
   }
 }
+
+
+
+
+
 
 export async function getUserOnboardingStatus() {
   const { userId } = await auth();

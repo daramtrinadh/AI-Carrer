@@ -36,33 +36,32 @@ export const generateAIInsights = async (industry) => {
   return JSON.parse(cleanedText);
 };
 
-export async function getIndustryInsights() {
+export async function getUserInsights() {
   const { userId } = await auth();
   if (!userId) throw new Error("Unauthorized");
 
   const user = await db.user.findUnique({
     where: { clerkUserId: userId },
-    include: {
-      industryInsight: true,
-    },
   });
 
   if (!user) throw new Error("User not found");
+  const existingInsight = await db.insight.findUnique({ where: { userId: userId } });
 
   // If no insights exist, generate them
-  if (!user.industryInsight) {
+  if (!existingInsight) {
     const insights = await generateAIInsights(user.industry);
 
-    const industryInsight = await db.industryInsight.create({
+    const insight = await db.insight.create({
       data: {
+        userId: userId,
         industry: user.industry,
         ...insights,
         nextUpdate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
       },
     });
 
-    return industryInsight;
+    return insight;
   }
 
-  return user.industryInsight;
+  return existingInsight;
 }
