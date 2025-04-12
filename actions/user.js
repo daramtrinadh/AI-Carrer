@@ -31,7 +31,7 @@ export async function updateUser(data) {
           industry: data.industry,
           experience: data.experience,
           bio: data.bio,          
-          skills: data.skills,
+          skills: skillsArray,
           insight: {
             upsert: {
               where: { userId: userId },
