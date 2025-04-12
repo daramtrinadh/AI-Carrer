@@ -17,6 +17,11 @@ export async function updateUser(data) {
         throw new Error("Failed to generate AI insights");
       }
       // 2. Update user information and associate new insights
+      const skillsArray = data.skills
+        .split(",")
+        .map((skill) => skill.trim())
+        .filter(Boolean);
+
       const updatedUser = await tx.user.update({
         where: { clerkUserId: userId },
         data: {
@@ -25,7 +30,7 @@ export async function updateUser(data) {
           job: data.job,
           industry: data.industry,
           experience: data.experience,
-          bio: data.bio,
+          bio: data.bio,          
           skills: data.skills,
           insight: {
             upsert: {
