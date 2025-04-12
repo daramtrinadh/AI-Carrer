@@ -98,7 +98,6 @@ export async function getUserOnboardingStatus() {
         industry: true,
         name: true,
         email: true,
-        job: true,
       },
     });
     const isOnboarded = !!result?.industry;
